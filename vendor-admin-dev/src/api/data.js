@@ -4,10 +4,10 @@ import store from '@/store'
 // 上传文件地址
 // 图片上传
 export const Upload =
-  'https://vendor-platform-test.sun-hyt.com/system/file/uploadFile'
+  'http://zgm-platform-test.zigoumao.com:8081/system/file/uploadFile'
   // 表格上传
   export const UploadExcel =
-  'https://vendor-platform-test.sun-hyt.com/position/machineInfo/uploadExcel'
+  'http://zgm-platform-test.zigoumao.com:8081/position/machineInfo/uploadExcel'
   // export const UploadExcel =
   // 'http://192.168.10.108:10003/position/machineInfo/uploadExcel'
 

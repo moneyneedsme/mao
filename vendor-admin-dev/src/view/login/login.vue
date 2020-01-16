@@ -37,6 +37,7 @@
         </div>
     </div>
     <p class='cName'>深圳市自购猫科技有限公司</p>
+    <p class='beian'>粤CIP备20003838号</p>
   </div>
 </template>
 <script>
@@ -244,12 +245,15 @@ export default {
       transform: translateY(-50%);
       width: 490px;
     }
-    .cName{
+    .cName,.beian{
       position: fixed;
       left: 50%;
-      bottom: 20px;
+      bottom: 50px;
       color:rgba(255,255,255,1);
       transform: translateX(-50%)
+    }
+    .beian{
+      bottom: 20px;
     }
   }
 </style>
