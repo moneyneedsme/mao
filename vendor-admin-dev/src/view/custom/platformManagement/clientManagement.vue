@@ -61,7 +61,7 @@
         />
       </div>
       <!-- 交易订单明细弹出框 -->
-      <Modal v-model="isShow" :mask-closable="false" width="1000" title="交易明细">
+      <Modal v-model="isShow" :mask-closable="false" width="1200" title="交易明细">
         <Table
           :columns="columnsOrder"
           :data="dataTableOrder"
@@ -70,8 +70,8 @@
           ref="table"
           style="margin:20px 0"
         >
-        <template slot-scope="{row,index}" slot="couponAquire">{{row.couponAquire|text}}</template>
-        <template slot-scope="{row,index}" slot="integralAquire">{{row.integralAquire|text}}</template>
+          <template slot-scope="{row,index}" slot="couponAquire">{{row.couponAquire|text}}</template>
+          <template slot-scope="{row,index}" slot="integralAquire">{{row.integralAquire|text}}</template>
           <template slot-scope="{row,index}" slot="orderStatus">
             <span v-show="row.shipingStatus==2||row.shipingStatus==4">交易正常</span>
             <span v-show="row.shipingStatus==1||row.shipingStatus==3" style="color:red">交易失败</span>
@@ -89,8 +89,9 @@
       </Modal>
 
       <!-- 返利弹框 -->
-      <Modal v-model="isShowRebatePrice" :mask-closable="false" width="500" heigh="1200" title="返利明细">
+      <Modal v-model="isShowRebatePrice" :mask-closable="false" width="500" title="返现">
         <Table
+          height="500"
           :columns="columnsRebatePrice"
           :data="dataTablemodal"
           border
@@ -102,8 +103,9 @@
         </div>
       </Modal>
       <!-- 积分弹框 -->
-      <Modal v-model="isShowIntegral" :mask-closable="false" width="500" heigh="1200" title="积分明细">
+      <Modal v-model="isShowIntegral" :mask-closable="false" width="500" title="积分">
         <Table
+          height="500"
           :columns="columnsIntegral"
           :data="dataTablemodal"
           border
@@ -176,6 +178,7 @@ export default {
           title: "订单编号",
           key: "orderNo",
           align: "center",
+          minWidth: 100,
           tooltip: true
         },
         {
@@ -188,12 +191,14 @@ export default {
           title: "交易时间",
           key: "createDate",
           align: "center",
+          minWidth: 100,
           tooltip: true
         },
         {
           title: "购买商品",
           key: "productName",
           align: "center",
+          minWidth: 100,
           tooltip: true
         },
 
@@ -214,27 +219,24 @@ export default {
           title: "积分",
           slot: "integralAquire",
           align: "center",
-          // minWidth: 80,
           tooltip: true
         },
         {
           title: "交易状态",
           slot: "orderStatus",
           align: "center",
-          // maxWidth: 100,
           tooltip: true
         },
         {
           title: "出货状态",
           slot: "Status",
           align: "center",
-          // maxWidth: 100,
           tooltip: true
         }
       ],
       dataTableOrder: [], //交易记录数据
       cardNoOrder: null, //会员身份证（消费者）
-      idOrder: null,
+      // idOrder: null,
       total: null, // 总页码数
       pageNum: 1, // 页码
       pageSize: 15, // 页容量
@@ -242,7 +244,7 @@ export default {
       buyerId: null, //支付宝唯一买家账号
       cardNo: null, //身份证号码
       id: null, //id
-      channelId: null,
+      channelId: "",
       memberName: null, //姓名
       memberPhone: null, //电话
       memberSex: null, //性别:1 男 2 女
@@ -270,7 +272,7 @@ export default {
         },
         {
           title: "会员姓名",
-          key: "memberName",
+          key: "nickName",
           align: "center",
           minWidth: 100,
           tooltip: true
@@ -362,7 +364,7 @@ export default {
       this.cardNo = null;
       this.memberPhone = null;
       this.pageNum = 1;
-      this.channelId = null;
+      this.channelId = "";
       this.getMember();
       this.$refs.channelTree.getTreeData();
     },
@@ -397,9 +399,11 @@ export default {
     seeOrder(row) {
       console.log(row);
       this.isShow = true;
-      // this.cardNoOrder = row.cardNo;
-      this.idOrder = row.id;
-      this.getOrder();
+      searchMemberOrder(this.channelId, row.id).then(res => {
+        if (res.data.code == 200) {
+          this.dataTableOrder = res.data.result;
+        }
+      });
     },
     searchGetMember() {
       this.pageNum = 1;
@@ -431,26 +435,14 @@ export default {
       });
     },
 
-    // 获取订单交易列表
-    getOrder() {
-      searchMemberOrder(this.idOrder).then(res => {
-        if (res.data.code == 200) {
-          this.dataTableOrder = res.data.result;
-        }
-      });
-    },
     // 根据会员身份证号查询所有
     getMemberMore() {
       let data = {
-        cardNo: this.cardNoMore, //主键
-        pageNum: this.pageNumOrder, // 页码
-        pageSize: this.pageSizeOrder // 页容量
+        cardNo: this.cardNoMore //主键
       };
       searchMemberMore(data).then(res => {
         if (res.data.code == 200) {
           this.dataTablemodal = res.data.result;
-          // this.totalOrder = res.data.result.total;
-          // this.pageNumOrder = res.data.result.pageNum;
         }
       });
     }

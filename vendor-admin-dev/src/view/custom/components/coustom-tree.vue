@@ -23,10 +23,7 @@ export default {
   watch:{
     treeData:{
       handler(newVal,oldVal){
-        const r = this.recursion(newVal);
-        if(!r){
-          this.getMoney(this.list)
-        }
+        this.init(newVal)
       },
       deep:true
     }
@@ -55,6 +52,12 @@ export default {
     };
   },
   methods: {
+    init(newVal){
+      const r = this.recursion(newVal);
+      if(!r){
+        this.getMoney(this.list)
+      }
+    },
     recursion(ary){
       ary.map(v=>{
         if(v.payee==2){
@@ -66,7 +69,6 @@ export default {
           return true
         }
       })
-      console.log(this.list)
     },
     pick(event, treeId, treeNode) {
       this.$emit("pickTree", treeNode);
@@ -95,10 +97,6 @@ export default {
     }
   },
   mounted(){
-    this.$nextTick(()=>{
-      // this.getMoneyList();
-      console.log(this.list)
-    })
   }
 };
 </script>

@@ -6,8 +6,9 @@
       </Input>
     </FormItem>
     <FormItem prop="password" style="margin-top:20px">
-      <Input :class='focusPswd?"focusInput":"blueInput"' @on-focus='focusPswd=true' @on-blur='focusPswd=false'  v-model="form.password" placeholder="请输入密码">
+      <Input :type="formpswd?'text':'password'" :class='focusPswd?"focusInput":"blueInput"' :readonly='pswdReadonly' @on-focus='focusPswd=true;formpswd=false' @on-blur='focusPswd=false'  v-model="form.password" placeholder="请输入密码">
         <img class='inputImg' :src="focusPswd||form.password?require('../../assets/images/loginImg/password_select.png'):require('../../assets/images/loginImg/password_normal.png')" slot="prefix" >
+        <img class='inputImgShow' :src="formpswd?require('../../assets/images/loginImg/showPswd.png'):require('../../assets/images/loginImg/hidePswd.png')"  @click="formpswd=!formpswd" slot="suffix">
       </Input>
     </FormItem>
     <FormItem  style="margin-top:-10px">
@@ -51,6 +52,8 @@ export default {
       },
       focusUser:false,
       focusPswd:false,
+      formpswd: false,
+      pswdReadonly:true,
     };
   },
   computed: {
@@ -97,6 +100,11 @@ export default {
   },
   mounted() {
     this.getCookie();
+    this.$nextTick(()=>{
+      setTimeout(()=>{
+        this.pswdReadonly = false;
+      },1000)
+    })
   }
 };
 </script>
@@ -136,6 +144,11 @@ export default {
         width: 20px;
         height: 20px;
         vertical-align: middle
+      }
+      >.inputImgShow{
+        width: 20px;
+        height: 20px;
+        margin-top:3px;
       }
     }
     /deep/.ivu-form-item-content{

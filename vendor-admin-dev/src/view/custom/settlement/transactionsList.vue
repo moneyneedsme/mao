@@ -28,7 +28,6 @@
         v-model="orderStatus"
         clearable
         placeholder="交易状态"
-        @on-change="orderStatusChange"
         style="width:100px;margin-right:10px"
       >
         <Option v-for="(item,i) in statusList" :value="item.value" :key="item+i">{{ item.label }}</Option>
@@ -70,10 +69,10 @@
         :data="dataTable"
         border
         style="margin:20px 0"
-        @on-select="select"
-        @on-select-cancel="selectCancel"
-        @on-select-all="selectAll"
-        @on-select-all-cancel="selectAllCancel"
+        @on-select="selectTableData"
+        @on-select-cancel="selectTableData"
+        @on-select-all="selectTableData"
+        @on-select-all-cancel="selectTableData"
       >
         <!-- 身份证号 -->
         <template slot-scope="{row,index}" slot="cardNo">
@@ -241,10 +240,6 @@
         </template>
       </Table>
       <div class="textDiv">
-        <div class="leftReason">
-          退款原因：
-          <Input :maxlength="30" v-model.trim="refundReason" />
-        </div>
         <div class="rightPrice">
           使用返利金额：
           <strong>{{couponAmount}}</strong>&nbsp元&nbsp
@@ -270,7 +265,7 @@
         :columns="columnsClear"
         :data="dataTableMore"
         border
-        ref="tableRefund"
+        ref="tableClear"
         style="margin:20px 0"
       >
         <!-- 出货状态 -->
@@ -296,17 +291,13 @@
         >{{row.productNumber-row.productProduce-row.refundNumber|clearNumText}}</template>
       </Table>
       <div class="textDiv">
-        <div class="leftReason">
-          清算原因：
-          <Input :maxlength="30" v-model.trim="refundReason" />
-        </div>
         <div class="rightPrice">
           使用返利金额：
           <strong>{{couponAmount}}</strong>&nbsp元&nbsp
           实际收款金额：
           <strong>{{payAmount}}</strong>&nbsp元&nbsp
           清算金额：
-          <Input disabled v-model="clearPrice" class="text" />元
+          <Input disabled v-model="clearingPrice" class="text" />元
         </div>
       </div>
       <div slot="footer">
@@ -316,7 +307,7 @@
           size="large"
           @click="isShowClear=false"
         >取消</Button>
-        <Button type="primary" size="large" @click="isShowClear=false">确定</Button>
+        <Button type="primary" :loading="loading" size="large" @click="clearModal">确定</Button>
       </div>
     </Modal>
   </div>
@@ -335,7 +326,8 @@ import {
   deleteOrder,
   seeReceiveTerminal,
   searchTreeByUser,
-  refundOrder
+  refundOrder,
+  clearOrder
 } from "@/api/http";
 export default {
   components: {
@@ -348,6 +340,7 @@ export default {
   data() {
     return {
       loading: false,
+      clearingReason: null,
       refundReason: null,
       isShowClear: false,
       columnsClear: [
@@ -583,7 +576,7 @@ export default {
           title: "订单编号",
           key: "orderNo",
           align: "center",
-          minWidth: 130,
+          minWidth: 140,
           tooltip: true
         },
         {
@@ -597,24 +590,16 @@ export default {
           title: "设备编码",
           key: "machineCode",
           align: "center",
-          minWidth: 60,
+          minWidth: 80,
           tooltip: true
         },
         {
           title: "点位名称",
           slot: "positionName",
           align: "center",
-          minWidth: 60,
+          minWidth: 100,
           tooltip: true
         },
-        {
-          title: "订单详情",
-          slot: "orserList",
-          align: "center",
-          minWidth: 60,
-          tooltip: true
-        },
-
         {
           title: "交易金额(元)",
           key: "orderAmount",
@@ -626,7 +611,7 @@ export default {
           title: "使用返利金额(元)",
           key: "couponAmount",
           align: "center",
-          minWidth: 50,
+          minWidth: 60,
           tooltip: true
         },
         {
@@ -640,7 +625,7 @@ export default {
           title: "收款金额(元)",
           slot: "payAmount",
           align: "center",
-          minWidth: 50,
+          minWidth: 60,
           tooltip: true
         },
         {
@@ -654,14 +639,14 @@ export default {
           title: "收款方",
           key: "channelName",
           align: "center",
-          minWidth: 100,
+          minWidth: 120,
           tooltip: true
         },
         {
           title: "交易时间",
           key: "createDate",
           align: "center",
-          minWidth: 120,
+          minWidth: 140,
           tooltip: true
         },
         {
@@ -679,6 +664,13 @@ export default {
           tooltip: true
         },
         {
+          title: "订单详情",
+          slot: "orserList",
+          align: "center",
+          minWidth: 60,
+          tooltip: true
+        },
+        {
           title: "操作",
           align: "center",
           slot: "operation",
@@ -686,7 +678,7 @@ export default {
           tooltip: true
         },
         {
-          title: "退款金额",
+          title: "退款金额(元)",
           align: "center",
           slot: "refundAmount",
           minWidth: 60,
@@ -696,7 +688,7 @@ export default {
           title: "退款时间",
           align: "center",
           key: "refundDate",
-          minWidth: 80,
+          minWidth: 120,
           tooltip: true
         }
       ],
@@ -739,7 +731,7 @@ export default {
         },
         {
           title: "清算数量",
-          key: "clearNumber",
+          key: "settlementNumber",
           align: "center",
           minWidth: 80,
           tooltip: true
@@ -835,7 +827,7 @@ export default {
     };
   },
   computed: {
-    clearPrice() {
+    clearingPrice() {
       let value = this.dataTableMore
         .map((v, i) => {
           if (v.productNumber != v.productProduce) {
@@ -1034,20 +1026,7 @@ export default {
         ? (this.refundStatus = 1)
         : (this.refundStatus = 2);
     },
-    orderStatusChange(value) {},
-    select(selection, row) {
-      this.orderNoList = [];
-      this.selectionData = selection;
-    },
-    selectCancel(selection, row) {
-      this.orderNoList = [];
-      this.selectionData = selection;
-    },
-    selectAll(selection, row) {
-      this.orderNoList = [];
-      this.selectionData = selection;
-    },
-    selectAllCancel(selection, row) {
+    selectTableData(selection, row) {
       this.orderNoList = [];
       this.selectionData = selection;
     },
@@ -1070,6 +1049,7 @@ export default {
     },
     cancel() {
       this.newlyAdded = false;
+      this.positionId=null;
     },
     handleChangeStart(value) {
       this.startDate = value;
@@ -1125,6 +1105,7 @@ export default {
     },
     //查看交易详情
     seeSettlementMore(row) {
+      console.log(row);
       this.orderNoMore = row.orderNo;
       this.isShow = true;
       this.getOrderMore();
@@ -1143,15 +1124,14 @@ export default {
       this.getOrderMore();
     },
     refundModalConfirm() {
-      let array = [];
-      this.dataTableMore.forEach(item => {
-        if (item.productNumber != item.productProduce) {
-          if (item.refundNumber == 0) {
-            array.push(item.refundNumber);
-          }
-        }
-      });
-      if (array.length) {
+      let sum = this.dataTableMore
+        .map(item => {
+          return item.refundNumber;
+        })
+        .reduce((pre, cur) => {
+          return pre + cur || 0;
+        }, 0);
+      if (!sum) {
         this.$Message.error("退货数量有误,请修改!");
       } else {
         if (!this.refundAmount) {
@@ -1206,12 +1186,55 @@ export default {
     },
     clear(row) {
       console.log(row);
+      this.loading = false;
+      this.clearingReason = null;
       this.channelId = row.channelId;
       this.orderNoMore = row.orderNo;
       this.couponAmount = row.couponAmount;
       this.payAmount = row.payAmount;
       this.getOrderMore();
       this.isShowClear = true;
+    },
+    clearModal() {
+      this.loading = true;
+      let list = [];
+      this.dataTableMore.forEach(item => {
+        list.push({
+          detailNo: item.detailNo,
+          productNumber: item.productNumber,
+          productProduce: item.productProduce,
+          refundNumber: item.refundNumber,
+          settlementNumber:
+            item.productNumber - item.productProduce - item.refundNumber < 0
+              ? 0
+              : item.productNumber - item.productProduce - item.refundNumber
+        });
+      });
+
+      let data = {
+        clearingOrderDetailDto: list,
+        clearingPrice: this.clearingPrice,
+        clearingReason: this.clearingReason,
+        couponAmount: this.couponAmount,
+        orderNo: this.orderNoMore,
+        payAmount: this.payAmount
+      };
+      clearOrder(data)
+        .then(res => {
+          if (res.data.code == 200) {
+            this.loading = false;
+            this.isShowClear = false;
+            this.$Message.info("清算成功");
+            this.getOrder();
+          } else {
+            this.loading = false;
+            this.$Message.error(res.data.message);
+          }
+        })
+        .catch(err => {
+          this.loading = false;
+          this.$Message.error(res.data.message);
+        });
     },
     searchOrder() {
       this.pageNum = 1;

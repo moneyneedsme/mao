@@ -4,7 +4,7 @@ import qs from "qs";
 // 上传文件地址
 // 图片上传
 export const Upload =
-  "http://zgm-platform-test.zigoumao.com:8081/system/file/uploadFile";
+  "https://zgm-platform-test.zigoumao.com/system/file/uploadFile";
 
 // ---------------------------------------角色模块--------------------------------------------
 
@@ -385,11 +385,11 @@ export const addChannelApply = info => {
   });
 };
 // 删除商户
-export const delChannelApply = channelApplyId => {
+export const delChannelApply = id => {
   return axios.request({
     url: "/system/channelApply/deleteChannelApply",
     params: {
-      channelApplyId
+      id
     },
     method: "delete"
   });
@@ -649,12 +649,6 @@ export const searchQRcodeByChannelId = channelId => {
 };
 
 // -------------------------------------------------结算模块--------------------------------------------------------------
-//新增结算列表
-
-// 删除结算列表
-
-// 编辑结算列表
-
 // 查询待结算列表
 export const searchSettlement = info => {
   return axios.request({
@@ -720,6 +714,14 @@ export const searchBenefitAccount = channelId => {
   });
 };
 
+// 编辑角色
+export const settlementClearing = info => {
+  return axios.request({
+    url: "/order/clearing/modificationClearing",
+    data: info,
+    method: "put"
+  });
+};
 //-------------------------------------------------订单模块--------------------------------------------------------------
 //新增交易列表
 
@@ -813,6 +815,15 @@ export const refundOrder = info => {
     method: "post"
   });
 };
+// 清算
+export const clearOrder = info => {
+  return axios.request({
+    url: "/order/order/manualClearingOrder",
+    data: info,
+    method: "post"
+  });
+};
+
 //-------------------------------------------------会员模块--------------------------------------------------------------
 //新增会员
 
@@ -846,10 +857,11 @@ export const searchMemberMore = info => {
 };
 
 // 查询会员购买过的订单记录
-export const searchMemberOrder = id => {
+export const searchMemberOrder = (channelId, id) => {
   return axios.request({
     url: "/order/orderDetail/findMemberOrderDetail",
     params: {
+      channelId,
       id
     },
     method: "get"

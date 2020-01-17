@@ -67,7 +67,7 @@
         <template slot-scope="{row,index}" slot="operation">
           <!-- 再次结算 -->
           <Button
-            style="margin-right:0px"
+            style="margin-left:0px"
             v-if="hasPerm('set:rec:setmoreback')&&row.clearingStatus==3"
             type="primary"
             size="small"
@@ -86,18 +86,25 @@
       />
     </div>
     <!-- 结算详情弹框的模态框 -->
-    <Modal v-model="isShow" :mask-closable="false" :title="'结算详情('+deductAccount+')'" width="1700">
+    <Modal v-model="isShow" :mask-closable="false" :title="'结算详情('+deductAccount+')'" width="1850">
+      <div>
+        <strong
+          v-if="accountId!=deductAccountId"
+          style="color:red"
+        >提示：待结算金额 =（总利润-被抽成金额）* 利润百分比 + 本金</strong>
+        <strong
+          v-if="accountId==deductAccountId"
+          style="color:red"
+        >提示：待结算金额 =（总利润-被抽成金额）* 利润百分比 + 本金 + 抽成金额 - 使用返利金额</strong>
+      </div>
       <Table
         class="setMore"
-        :columns="columnsMore"
+        :columns="columnsMoreText"
         :data="dataTableMore"
         border
         ref="table"
         style="margin:20px 0"
       >
-        <template slot-scope="{row,index}" slot="Price">
-          <span>{{parseFloat((row.actualPrice-row.buyPrice)*row.productProduce*(row.commissionPercent/100)).toFixed(2)}}</span>
-        </template>
         <template slot-scope="{row,index}" slot="primayCapital">
           <span>{{row.primayCapital|primayCapital}}</span>
         </template>
@@ -128,12 +135,12 @@
           color="#515a6e"
           style="margin-top:10px;margin-right:15px"
           class="icon"
-          @click="close"
+          @click="handleClick"
         />
       </div>
     </Modal>
     <!-- 收款人详情弹框的模态框 -->
-    <account :isShowAccount.sync="isShowAccount" :formValidate="formValidate"></account>
+    <account :isShowAccount.sync="isShowAccount" :formValidate="formValidate" @cancel="cancel"></account>
     <!-- 关联设备弹框的模态框 -->
     <Modal v-model="isShowEquipment" :mask-closable="false" title="关联设备" width="500">
       <Table
@@ -144,7 +151,21 @@
         style="margin:20px 0"
       ></Table>
       <div slot="footer">
-        <Button type="primary" size="large" @click="isShowEquipment=false">确定</Button>
+        <Button
+          type="primary"
+          size="large"
+          @click="isShowEquipment=false;accountId=null"
+        >确定</Button>
+      </div>
+      <div slot="close">
+        <Icon
+          type="md-close"
+          size="20"
+          color="#515a6e"
+          style="margin-top:10px;margin-right:15px"
+          class="icon"
+          @click="isShowEquipment=false;accountId=null"
+        />
       </div>
     </Modal>
   </div>
@@ -215,14 +236,14 @@ export default {
           title: "收款方",
           key: "deductAccountName",
           align: "center",
-          minWidth: 50,
+          minWidth: 80,
           tooltip: true
         },
         {
           title: "收款人",
           key: "accountName",
           align: "center",
-          minWidth: 50,
+          minWidth: 180,
           tooltip: true
         },
         {
@@ -243,28 +264,28 @@ export default {
           title: "联系电话",
           key: "phone",
           align: "center",
-          minWidth: 60,
+          minWidth: 80,
           tooltip: true
         },
         {
           title: "结算时间段",
           slot: "betweenTime",
           align: "center",
-          minWidth: 80,
+          minWidth: 150,
           tooltip: true
         },
         {
           title: "结算时间",
           key: "clearingDate",
           align: "center",
-          minWidth: 60,
+          minWidth: 120,
           tooltip: true
         },
         {
           title: "结算金额(元)",
           key: "gatheringPrice",
           align: "center",
-          minWidth: 70,
+          minWidth: 80,
           tooltip: true
         },
         {
@@ -278,38 +299,39 @@ export default {
           title: "结算状态",
           align: "center",
           slot: "clearingStatus",
-          minWidth: 60,
+          minWidth: 80,
           tooltip: true
         },
         {
           title: "操作",
           align: "center",
           slot: "operation",
-          minWidth: 50,
+          minWidth: 80,
           tooltip: true
         }
       ],
       dataTable: [], // 数据
       // 结算详情的数据结构
+      columnsMoreText: [],
       columnsMore: [
         {
           title: "序号",
           type: "index",
-          minWidth: 60,
+          minWidth: 50,
           align: "center"
         },
         {
           title: "订单编号",
           key: "orderNo",
           align: "center",
-          minWidth: 80,
+          minWidth: 160,
           tooltip: true
         },
         {
           title: "消费者",
           slot: "cardNo",
           align: "center",
-          minWidth: 100,
+          minWidth: 90,
           tooltip: true
         },
         {
@@ -323,53 +345,75 @@ export default {
           title: "商品名称",
           key: "productName",
           align: "center",
-          minWidth: 100,
+          minWidth: 140,
           tooltip: true
         },
         {
           title: "商品进价",
           key: "buyPrice",
           align: "center",
-          minWidth: 80,
+          minWidth: 50,
           tooltip: true
         },
         {
           title: "实际售价",
           key: "actualPrice",
           align: "center",
-          minWidth: 80,
+          minWidth: 50,
           tooltip: true
         },
         {
           title: "活动售价",
           key: "activityPrice",
           align: "center",
-          minWidth: 80,
+          minWidth: 50,
           tooltip: true
         },
         {
           title: "购买数量",
           key: "productNumber",
           align: "center",
-          minWidth: 80,
+          minWidth: 50,
           tooltip: true
         },
         {
           title: "出货数量",
           key: "productProduce",
           align: "center",
-          minWidth: 80,
+          minWidth: 50,
+          tooltip: true
+        },
+        {
+          title: "退货数量",
+          key: "refundNumber",
+          align: "center",
+          minWidth: 50,
+          tooltip: true
+        },
+        {
+          title: "清算数量",
+          key: "settlementNumber",
+          align: "center",
+          minWidth: 50,
           tooltip: true
         },
         {
           title: "交易时间",
           key: "dealDate",
           align: "center",
-          minWidth: 80,
+          minWidth: 140,
           tooltip: true
         },
         {
-          title: "本金(元)",
+          title: "使用返利金额",
+          key: "couponAmount",
+          align: "center",
+          minWidth: 60,
+          tooltip: true,
+          className: "more"
+        },
+        {
+          title: "本金",
           slot: "primayCapital",
           align: "center",
           minWidth: 60,
@@ -377,15 +421,15 @@ export default {
           className: "more"
         },
         {
-          title: "被抽成金额(元)",
-          slot: "Price",
+          title: "被抽成金额",
+          key: "commissionPrice",
           align: "center",
-          minWidth: 80,
+          minWidth: 60,
           tooltip: true,
           className: "more"
         },
         {
-          title: "利润(元)",
+          title: "利润",
           key: "profitPrice",
           align: "center",
           minWidth: 60,
@@ -396,7 +440,7 @@ export default {
           title: "利润百分比",
           key: "profitPercent",
           align: "center",
-          minWidth: 70,
+          minWidth: 60,
           tooltip: true,
           className: "more",
           render: (h, param) => {
@@ -404,7 +448,7 @@ export default {
           }
         },
         {
-          title: "结算金额(元)",
+          title: "结算金额",
           key: "benefitPrice",
           align: "center",
           minWidth: 80,
@@ -415,7 +459,7 @@ export default {
           title: "结算时间",
           key: "updateDate",
           align: "center",
-          minWidth: 100,
+          minWidth: 140,
           tooltip: true
         },
         {
@@ -511,6 +555,9 @@ export default {
         case 2:
           return "退款";
           break;
+        case 3:
+          return "清算";
+          break;
       }
     }
   },
@@ -535,6 +582,7 @@ export default {
       this.accountId = null;
       this.clearingStartDate = "";
       this.clearingEndDate = "";
+      this.channelId = this.$store.state.user.channelId;
       this.pageNum = 1;
       this.pageSize = 15;
       this.total = null;
@@ -563,20 +611,40 @@ export default {
     },
     // 关联设备
     contactEquipment(row) {
+      console.log(row);
       this.isShowEquipment = true;
       this.accountId = row.accountId;
-      this.channelId = row.channelId;
       this.getMachine();
     },
     // 查看收款人信息
     seeAccount(row) {
+      console.log(row);
       this.isShowAccount = true;
       this.accountId = row.accountId;
       this.getAccount();
     },
-    // 右上角关闭按钮
-    close() {
-      this.handleClick();
+    cancel() {
+      this.isShowAccount = false;
+      this.accountId = null;
+    },
+    //查看结算详情
+    seeSettlementMore(row) {
+      console.log(row);
+      this.accountId = row.accountId;
+      this.deductAccountId = row.deductAccountId;
+      this.clearingId = row.id;
+      this.createDate = row.createDate;
+      this.clearingDate = row.clearingDate;
+      this.deductAccount = row.beneficiary;
+      this.isShow = true;
+      this.columnsMoreText = [...this.columnsMore];
+      this.getSettlementOverMore();
+      if (row.accountId != row.deductAccountId) {
+        this.columnsMoreText.splice(
+          this.columnsMoreText.findIndex(item => item.key === "couponAmount"),
+          1
+        );
+      }
     },
     // 结算详情确定按钮
     handleClick() {
@@ -585,16 +653,8 @@ export default {
       this.accountName = null;
       this.createDate = "";
       this.clearingDate = "";
-    },
-    //查看结算详情
-    seeSettlementMore(row) {
-      console.log(row);
-      this.clearingId = row.id;
-      this.createDate = row.createDate;
-      this.clearingDate = row.clearingDate;
-      this.deductAccount = row.beneficiary;
-      this.isShow = true;
-      this.getSettlementOverMore();
+      this.accountId = null;
+      this.deductAccountId = null;
     },
     // 导出表格
     exportTable() {
@@ -659,7 +719,11 @@ export default {
         id: this.id, //主键id
         orderNo: this.orderNo, //订单编号
         pageNum: this.pageNum, // 页码
-        pageSize: this.pageSize // 页容量
+        pageSize: this.pageSize, // 页容量
+        channelId: this.channelId,
+        managerRoute: this.$store.state.user.userVo.managerRoute,
+        userId: this.$store.state.user.userVo.id,
+        userType: this.$store.state.user.userVo.type
       };
       searchSettlementMore(data).then(res => {
         if (res.data.code == 200) {
@@ -709,7 +773,7 @@ export default {
     margin-right: 5px;
   }
   .ivu-btn {
-    margin-right: 10px;
+    margin-left: 10px;
   }
   .ivu-table-wrapper {
     margin-top: 20px;

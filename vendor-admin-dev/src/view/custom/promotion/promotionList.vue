@@ -1,7 +1,7 @@
 <template>
   <div class="activity">
     <div class="leftBox">
-      <channel-tree @clickTreeRow="clickTreeRow" ref='channelTree'></channel-tree>
+      <channel-tree @clickTreeRow="clickTreeRow" ref="channelTree"></channel-tree>
     </div>
     <div class="rightDiv">
       <Input v-model="activityName" style="margin-right:10px" placeholder="活动名称" clearable />
@@ -12,7 +12,6 @@
         type="primary"
         @click="addModal"
         class="xzbtn"
-        relationDatarelationData
         v-if="channelId==$store.state.user.channelId&&hasPerm('act:actList:edit')"
       >新增</Button>
 
@@ -40,9 +39,20 @@
             @click="showRelation(row)"
           >{{row.num}}台</a>
           <span v-if="row.activityMode==1">全部</span>
-          <span
-            v-if="(!hasPerm('act:actList:edit')||channelId!=$store.state.user.channelId)&&row.activityMode==2"
-          >{{row.num}}台</span>
+          <Poptip placement="right" width="250" trigger="hover" @on-popper-show="popperShow(row)">
+            <div slot="content">
+              <template v-if="relationDataText.length>0">
+                <Card v-for="(v,i) in relationDataText" :key="v.id">
+                  <div class="poptipDiv">{{v.machineCode}}&nbsp-&nbsp{{v.label}}</div>
+                </Card>
+              </template>
+              <template v-else>暂无数据</template>
+            </div>
+            <span
+              class="poptipText"
+              v-if="(!hasPerm('act:actList:edit')||channelId!=$store.state.user.channelId)&&row.activityMode==2"
+            >{{row.num}}台</span>
+          </Poptip>
         </template>
         <!-- 活动状态 -->
         <template slot-scope="{row,index}" slot="status">
@@ -86,7 +96,7 @@
           >编辑</Button>
           <!-- 删除按钮 -->
           <Button
-          style="margin-right:0px"
+            style="margin-right:0px"
             type="error"
             size="small"
             :disabled="row.status==1&&row.publish"
@@ -305,6 +315,7 @@ export default {
       rowData: null,
       relationKeys: [],
       relationData: [],
+      relationDataText: [],
       relationModal: false,
       formDynamic: [
         //新增的数据
@@ -386,7 +397,7 @@ export default {
           title: "活动名称",
           key: "activityName",
           align: "center",
-          minWidth: 60,
+          minWidth: 100,
           tooltip: true
         },
         {
@@ -414,21 +425,21 @@ export default {
           title: "操作人",
           key: "operatorName",
           align: "center",
-          minWidth: 50,
+          minWidth: 100,
           tooltip: true
         },
         {
           title: "操作时间",
           key: "createDate",
           align: "center",
-          minWidth: 60,
+          minWidth: 140,
           tooltip: true
         },
         {
           title: "活动状态",
           slot: "status",
           align: "center",
-          minWidth: 80,
+          minWidth: 100,
           tooltip: true
         },
         {
@@ -478,6 +489,23 @@ export default {
     }
   },
   methods: {
+    popperShow(row) {
+      this.rowData = row;
+      this.relationName = row.activityName;
+      this.activitystatus = row.status;
+      let data = {
+        isAll: 2,
+        channelId: this.channelId,
+        activityId: row.id,
+        startDate: row.startDate,
+        endDate: row.endDate
+      };
+      searchActivityMachine(data).then(res => {
+        if (res.data.code == 200) {
+          this.relationDataText = res.data.result.data;
+        }
+      });
+    },
     radioGroupChange(value) {
       this.formDynamic = [
         { productCode: null, activityPrice: null, activityNum: null }
@@ -519,6 +547,7 @@ export default {
       this.relationName = row.activityName;
       this.activitystatus = row.status;
       let data = {
+        isAll: 1,
         channelId: this.channelId,
         activityId: row.id,
         startDate: row.startDate,
@@ -618,10 +647,6 @@ export default {
         }
         this.formDynamic[index].activityNum = parseInt(value);
       } else {
-        // if (value < item.buyPrice) {
-        //   this.$Message.error("活动价格需要高于成本价，请重新输入");
-        //   this.formDynamic[index].activityPrice = "";
-        // }
         this.formDynamic[index].activityPrice = parseFloat(value).toFixed(2);
       }
     },
@@ -641,17 +666,21 @@ export default {
       this.changeData.enable = true;
       changeactivity(this.changeData)
         .then(res => {
-          // if (res.data.code == 200) {
+          if (res.data.code == 200) {
           this.modal_loading = false;
           this.modalDel = false;
           this.delID = null; //删除的ID
           this.$Message.success("删除成功");
           this.dataTable.splice(this.delIndex, 1);
           this.delIndex = null; //删除的索引
-          // }
+          }else {
+            this.modal_loading = false;
+            this.$Message.error(res.data.message);
+          }
         })
         .catch(err => {
           this.modal_loading = false;
+          this.$Message.error(res.data.message);
         });
     },
 
@@ -809,9 +838,6 @@ export default {
           // 对的
           this.loading = true;
           if (this.modalTitle == "新增【活动】") {
-            // if(this.isLimitedEdition==1){
-            //   this.formDynamic.activityNum=parseInt(this.formDynamic.activityNum)
-            // }
             this.formValidate.list = this.formDynamic;
             addActivity(this.formValidate)
               .then(res => {
@@ -834,7 +860,6 @@ export default {
               ...this.formDynamic,
               ...this.formDynamic1
             ];
-
             editActivity(this.formValidate)
               .then(res => {
                 if (res.data.code == 200) {
@@ -918,11 +943,6 @@ export default {
   },
   mounted() {
     this.getActivity();
-    
-    // this.getActivity().then(() => {
-    //   this.countDown();
-    // });
-    // this.getProductChannelAll();
   },
   beforeDestroy() {
     if (this.timer) {
@@ -993,6 +1013,27 @@ export default {
   }
   .lookDetails {
     text-decoration: underline;
+  }
+  /deep/ .ivu-poptip-inner {
+    text-align: left;
+    max-height: 200px;
+    overflow: auto;
+  }
+  // /deep/ .ivu-table-wrapper {
+  //   overflow: inherit;
+  // }
+  /deep/ .ivu-card-body {
+    padding: 5px;
+  }
+  .poptipDiv {
+    font-size: 12px;
+  }
+  .poptipText{
+    text-decoration: underline;
+    color: #2d8cf0;
+  }
+  .poptipText:hover{
+    cursor: pointer;
   }
 }
 .activityName {

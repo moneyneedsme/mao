@@ -18,9 +18,9 @@ export default {
    */
   baseUrl: {
     // dev: 'http://localhost:10003',
-    dev: 'http://zgm-platform-test.zigoumao.com:8081',
-    test: 'https://vendor-platform-test.sun-hyt.com',
-    master: 'http://zgm-platform-test.zigoumao.com:8081'
+    dev: 'https://zgm-platform-test.zigoumao.com',
+    test: 'https://zgm-platform-test.zigoumao.com',
+    master: 'https://zgm-platform-test.zigoumao.com'
   },
   /**
    * @description 默认打开的首页的路由name值，默认为home

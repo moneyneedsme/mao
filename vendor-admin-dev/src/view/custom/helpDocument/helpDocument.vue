@@ -2,7 +2,7 @@
   <div class='helpDocument layout'>
     <Layout>
       <Sider hide-trigger width='280px' class='sederLeft'>
-        <Menu @on-select='menuChange'  width='280px' active-name="1-1" :open-names="['1','2','3']">
+        <Menu @on-select='menuChange'  width='280px' active-name="1-1" :open-names="['1']">
           <Submenu  v-for='(v,i) in list' :key='v+i' :name="v.name">
             <template slot="title">{{v.title}}</template>
               <template  v-for='(value,index) in v.children' >
@@ -472,15 +472,10 @@ let contentData = [
                   ]
                 },
                 {
-                  title:'2.分区线路设置',
-                  describe:'新增分区或线路（分区下面可继续新增分区以及线路，线路下面不可新增，用于直接关联点位）',
+                  title:'2.分区线路点位设置',
+                  describe:'新增分区或线路（分区下面可继续新增分区以及线路，线路下面不可新增，用于直接关联点位）及新增点位；',
                   img:require('../../../assets/images/helpImg/02_1/4.2.png'),
                   id:'2-4-2',
-                },
-                {
-                  title:'3.点位管理',
-                  img:require('../../../assets/images/helpImg/02_1/4.3.png'),
-                  id:'2-4-3',
                 },
                 {
                   title:'4.货道商品模板设置',
@@ -930,12 +925,8 @@ let list = [
                   name:'2-4-1',
                 },
                 {
-                  title:'2.分区线路设置',
+                  title:'2.分区线路点位设置',
                   name:'2-4-2',
-                },
-                {
-                  title:'3.点位管理',
-                  name:'2-4-3',
                 },
                 {
                   title:'4.货道商品模板设置',
