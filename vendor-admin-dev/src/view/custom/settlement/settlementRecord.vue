@@ -114,6 +114,9 @@
         <template slot-scope="{row,index}" slot="flowType">
           <span>{{row.flowType|flowTypeText}}</span>
         </template>
+        <template slot-scope="{row,index}" slot="activityPrice">
+          {{row.activityPrice}}<span v-if="row.buyPrice==0&&row.activityPrice==0">(限免)</span>
+        </template>
       </Table>
       <Page
         :total="totalMore"
@@ -366,9 +369,9 @@ export default {
         },
         {
           title: "活动售价",
-          key: "activityPrice",
+          slot: "activityPrice",
           align: "center",
-          minWidth: 50,
+          minWidth: 80,
           tooltip: true
         },
         {

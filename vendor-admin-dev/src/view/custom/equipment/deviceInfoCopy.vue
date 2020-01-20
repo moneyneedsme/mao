@@ -131,8 +131,8 @@
                   <Option v-for="item in ownershipList" :value="item.value" :key="item.value">{{ item.label }}</Option>
               </Select>
             </FormItem> -->
-            <FormItem label="管理年费" v-show='showNewlyType!="sh"' >
-              <Input v-model.trim="formValidate.annualFee" placeholder="元/天" :disabled='showNewlyType=="ck"||showNewlyType=="sh"'/>
+            <FormItem label="管理年费" prop="annualFee" v-if='showNewlyType!="sh"' >
+              <Input type='number' v-model.trim="formValidate.annualFee" @on-blur='annualFeeChange' placeholder="元/天" :disabled='showNewlyType=="ck"||showNewlyType=="sh"'/>
             </FormItem>
             <template v-if='showNewlyType=="sh"'>
               <Divider/>
@@ -147,7 +147,7 @@
                 </Select>
               </FormItem>
               <FormItem label="管理年费"  prop="annualFee">
-                <Input v-model.trim="formValidate.annualFee" placeholder="元/天"/>
+                <Input type='number' v-model.trim="formValidate.annualFee" @on-blur='annualFeeChange' placeholder="元/天"/>
               </FormItem>
               <FormItem label="指令发送方式"  prop="hardwareVersion">
                 <Select v-model="formValidate.hardwareVersion" placeholder="指令发送方式" clearable>
@@ -573,7 +573,8 @@ export default {
           {
             required: true,
             message: "输入不能为空",
-            trigger: "blur"
+            trigger: "blur",
+            type:'number'
           }
         ],
         hardwareVersion: [
@@ -748,6 +749,11 @@ export default {
     }
   },
   methods:{
+    annualFeeChange(){
+      if(this.formValidate.annualFee<0){
+        this.$set(this.formValidate,'annualFee',parseInt(0));
+      }
+    },
     devDelete(row,index){
       if(row.status!=3){
         this.modalDel=true;
@@ -1187,7 +1193,6 @@ export default {
         hardwareVersion:null,
       };
       if(type!='xz'){
-        console.log(row)
         this.formValidate = JSON.parse(JSON.stringify(row));
         this.formValidate.enable = this.formValidate.enable+'';
         this.formValidate.machineType = this.formValidate.machineType+'';
@@ -1225,7 +1230,8 @@ export default {
             ownership,
             annualFee,
             headingCode,
-            hardwareVersion
+            hardwareVersion,
+            channelId
           } = value;
           if (this.showNewlyType == "xz") {
             let data = {
@@ -1276,7 +1282,7 @@ export default {
               hardwareVersion,
               operator:this.operator,
               operatorName:this.operatorName,
-              channelId:this.channelId,
+              channelId,
               enable,
               ownership,
               annualFee,

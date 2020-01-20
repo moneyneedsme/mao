@@ -37,7 +37,7 @@
         </div>
     </div>
     <p class='cName'>深圳市自购猫科技有限公司</p>
-    <p class='beian'>粤CIP备20003838号</p>
+    <p class='beian' @click='toLink'>粤CIP备20003838号</p>
   </div>
 </template>
 <script>
@@ -72,6 +72,9 @@ export default {
       "setAsyncRouter",
       "getlogo"
     ]),
+    toLink(){
+      window.open("http://www.beian.miit.gov.cn/state/outPortal/loginPortal.action", '_blank');
+    },
     // 子组件传参的事件
     handleSubmit({ userName, password }) {
       // 调用审核账号的接口
@@ -254,6 +257,10 @@ export default {
     }
     .beian{
       bottom: 20px;
+      cursor: pointer;
+      &:hover{
+        text-decoration: underline;
+      }
     }
   }
 </style>

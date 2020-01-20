@@ -122,7 +122,12 @@
 
 <script>
 import channelTree from "@/view/custom/components/channelTree";
-import { searchMember, searchMemberMore, searchMemberOrder } from "@/api/http";
+import {
+  searchMember,
+  searchMemberMore,
+  searchMemberOrder,
+  exportMember
+} from "@/api/http";
 export default {
   components: {
     channelTree
@@ -130,6 +135,9 @@ export default {
   name: "clientManagement",
   data() {
     return {
+      nickName:null,
+      isAutonym:null,//1未实名2已实名
+      appOpenId:null,
       isShowIntegral: false,
       columnsIntegral: [
         { title: "序号", type: "index", width: 60, align: "center" },
@@ -240,7 +248,7 @@ export default {
       total: null, // 总页码数
       pageNum: 1, // 页码
       pageSize: 15, // 页容量
-      alipayState: "", // 是否已绑定支付宝用户唯一标识 0 未绑定 1绑定
+      alipayState: null, // 是否已绑定支付宝用户唯一标识 0 未绑定 1绑定
       buyerId: null, //支付宝唯一买家账号
       cardNo: null, //身份证号码
       id: null, //id
@@ -351,7 +359,6 @@ export default {
     }
   },
   methods: {
-    exportTable() {},
     clickTreeRow(value) {
       if (value) {
         this.channelId = value.id;
@@ -444,6 +451,41 @@ export default {
         if (res.data.code == 200) {
           this.dataTablemodal = res.data.result;
         }
+      });
+    },
+    // 导出的方法
+    exportTable() {
+     
+      
+      let data = {
+        pageNum: this.pageNum,
+        pageSize: this.pageSize,
+        alipayState: this.alipayState,
+        appOpenId:this.appOpenId,
+        buyerId: this.buyerId,
+        cardNo: this.cardNo,
+        id: this.id,
+        isAutonym:this.isAutonym,
+        channelId: this.channelId,
+        memberName: this.memberName,
+        memberPhone: this.memberPhone,
+        memberSex: this.memberSex,
+        nickName:this.nickName,
+        openId: this.openId,
+        pid: this.pid,
+        wxState: this.wxState
+      };
+      exportMember(data).then(res => {
+        const blob = new Blob([res.data]);
+        const fileName = "会员信息.xlsx";
+        const elink = document.createElement("a");
+        elink.download = fileName;
+        elink.style.display = "none";
+        elink.href = URL.createObjectURL(blob);
+        document.body.appendChild(elink);
+        elink.click();
+        URL.revokeObjectURL(elink.href); // 释放URL 对象
+        document.body.removeChild(elink);
       });
     }
   },
