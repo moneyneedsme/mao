@@ -154,22 +154,28 @@ export default {
           smsCode
         })
           .then(res => {
-            // 保存token
-            commit('setToken', res.data.result.token)
-            // 保存按钮权限
-            commit('setAccess', res.data.result.permissionList)
-            // 获取用户信息
-            const userVo = res.data.result.userVo
-            commit('setAvator', userVo.imageAddress)
-            commit('setUserName', userVo.userName)
-            commit('setUserId', userVo.id)
-            commit('setChannelId', userVo.channelId)
-            commit('setChannelName', userVo.channelName)
-            commit('setDeptId', userVo.deptId)
-            commit('setDeptName', userVo.deptName)
-            commit('setUesrVo', userVo)
-            commit('setHasGetInfo', true)
-            resolve(res)
+            console.log(res)
+            if(res.data.code==500){
+              reject(res.data.message)
+            }else{
+              // 保存token
+              commit('setToken', res.data.result.token)
+              // 保存按钮权限
+              commit('setAccess', res.data.result.permissionList)
+              // 获取用户信息
+              const userVo = res.data.result.userVo
+              commit('setAvator', userVo.imageAddress)
+              commit('setUserName', userVo.userName)
+              commit('setUserId', userVo.id)
+              commit('setChannelId', userVo.channelId)
+              commit('setChannelName', userVo.channelName)
+              commit('setDeptId', userVo.deptId)
+              commit('setDeptName', userVo.deptName)
+              commit('setUesrVo', userVo)
+              commit('setHasGetInfo', true)
+              resolve(res)
+            }
+            
           })
           .catch(err => {
             reject(err)
