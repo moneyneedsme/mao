@@ -319,6 +319,7 @@ export default {
       }
       
     },
+    // 取消合并
     cancelMerger(index1,index2,num){
       this.$set(this.listData[index1].AddMachineTypeRoadDto[index2],'roadStatus',num);
       this.$set(this.listData[index1].AddMachineTypeRoadDto[index2],'merged',false);
@@ -339,6 +340,7 @@ export default {
         }
       }
     },
+    // 合并
     merge(index1,index2,num){
       if(index2>0){
         if(this.listData[index1].AddMachineTypeRoadDto[index2].goodsShow||this.listData[index1].AddMachineTypeRoadDto[index2-1].goodsShow){
@@ -353,6 +355,7 @@ export default {
         this.$Message.error('不能合并');
       }
     },
+    // 设置宽度
     setWidth(index1,index2){
       let i  = this.isFalse(index1,index2-1);
       let w = parseInt(this.$refs[("box"+index1+""+index2)][0].$el.style.width) //点击合并盒子的宽度

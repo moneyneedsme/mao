@@ -163,7 +163,7 @@
             style="width:10px;opacity: 0;position: absolute"
           ></Input>
         </FormItem>
-        <FormItem label="密码" prop="passwordNew" v-if="ispassword" style="display:inline-block">
+        <FormItem label="登陆密码" prop="passwordNew" v-if="ispassword" style="display:inline-block">
           <Input
             v-model="formValidate.password"
             type="password"
@@ -1262,10 +1262,9 @@ export default {
             if (item.userRouteVos != null) {
               item.userRouteVos.forEach(v => {
                 ary.push(v.label);
-                v.routerStr = ary.join("/");
               });
             }
-            item.routerStr = ary.join("/");
+            item.routerStr = ary.join(" / ");
           });
         }
       });

@@ -181,7 +181,7 @@
             <Input
               v-model="item3.activityPrice"
               placeholder="请输入"
-              :disabled="isdisabled"
+              disabled
               style="width: 60px"
             ></Input>
             <span>&nbsp元&nbsp&nbsp&nbsp&nbsp</span>
@@ -191,7 +191,7 @@
             <Input
               v-model="item3.activityNum"
               placeholder="请输入"
-              :disabled="isdisabled"
+              disabled
               style="width: 60px"
             ></Input>
             <span>&nbsp件&nbsp&nbsp&nbsp</span>
@@ -207,7 +207,7 @@
             <Option
               v-for="item1 in list"
               :value="item1.productCode"
-              :label="'名称:'+item1.productName+'进价:'+item1.buyPrice+'售价:'+item1.salePrice"
+              :label="'名称:'+item1.productName+' 进价:'+item1.buyPrice+' 售价:'+item1.actualPrice"
               :key="item1.id"
             ></Option>
           </Select>
@@ -644,10 +644,16 @@ export default {
         if (value <= 0) {
           this.$Message.error("活动数量需大于0，请重新输入");
           this.formDynamic[index].activityNum = "";
+        } else {
+          this.formDynamic[index].activityNum = parseInt(value);
         }
-        this.formDynamic[index].activityNum = parseInt(value);
       } else {
-        this.formDynamic[index].activityPrice = parseFloat(value).toFixed(2);
+        if (value < item.buyPrice || value > item.actualPrice) {
+          this.$Message.error("活动金额应大于成本金额小于销售金额，请重新输入");
+          this.formDynamic[index].activityPrice = "";
+        } else {
+          this.formDynamic[index].activityPrice = parseFloat(value).toFixed(2);
+        }
       }
     },
     handleRemove(index) {
@@ -667,13 +673,13 @@ export default {
       changeactivity(this.changeData)
         .then(res => {
           if (res.data.code == 200) {
-          this.modal_loading = false;
-          this.modalDel = false;
-          this.delID = null; //删除的ID
-          this.$Message.success("删除成功");
-          this.dataTable.splice(this.delIndex, 1);
-          this.delIndex = null; //删除的索引
-          }else {
+            this.modal_loading = false;
+            this.modalDel = false;
+            this.delID = null; //删除的ID
+            this.$Message.success("删除成功");
+            this.dataTable.splice(this.delIndex, 1);
+            this.delIndex = null; //删除的索引
+          } else {
             this.modal_loading = false;
             this.$Message.error(res.data.message);
           }
@@ -1028,11 +1034,11 @@ export default {
   .poptipDiv {
     font-size: 12px;
   }
-  .poptipText{
+  .poptipText {
     text-decoration: underline;
     color: #2d8cf0;
   }
-  .poptipText:hover{
+  .poptipText:hover {
     cursor: pointer;
   }
 }

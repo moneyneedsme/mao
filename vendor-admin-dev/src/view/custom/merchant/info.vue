@@ -2128,6 +2128,9 @@ export default {
                 float: right;
                 margin-right: 0px;
               }
+              .close {
+                cursor: pointer;
+              }
             }
             .numText {
               color: #2d8cf0;
