@@ -669,6 +669,7 @@ export default {
           title: '设备编码',
           key: 'machineCode',
           align: 'center',
+          width:100,
           tooltip:true
         },
         {
@@ -1675,12 +1676,12 @@ export default {
       box-shadow:1px 1px 20px #6d4a4a;
       box-shadow:0px 0px 0px #fff;
     }
-    .leftBox {
-      // min-width: 250px;
-      min-height: 900px;
-      float: left;
-      margin-right: 20px;
-    }
+    // .leftBox {
+    //   // min-width: 250px;
+    //   min-height: 900px;
+    //   float: left;
+    //   margin-right: 20px;
+    // }
   }
   .inputTree{
     width: 160px;

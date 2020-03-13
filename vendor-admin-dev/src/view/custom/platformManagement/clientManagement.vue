@@ -5,7 +5,7 @@
     </div>
     <div class="clientManagementContent">
       <div class="rightDiv">
-        <Input class="input" v-model="memberName" clearable placeholder="会员姓名" />
+        <Input class="input" v-model="nickName" clearable placeholder="会员姓名" />
         <Input class="input" v-model="cardNo" placeholder="身份证号" clearable />
         <Input
           class="input"
@@ -253,7 +253,7 @@ export default {
       cardNo: null, //身份证号码
       id: null, //id
       channelId: "",
-      memberName: null, //姓名
+      nickName: null, //姓名
       memberPhone: null, //电话
       memberSex: null, //性别:1 男 2 女
       openId: null, //如果用户使用微信支付并且关注了公众号即可获取
@@ -367,7 +367,7 @@ export default {
     },
     // 用户重置按钮
     reset() {
-      this.memberName = null;
+      this.nickName = null;
       this.cardNo = null;
       this.memberPhone = null;
       this.pageNum = 1;
@@ -426,7 +426,7 @@ export default {
         cardNo: this.cardNo,
         id: this.id,
         channelId: this.channelId,
-        memberName: this.memberName,
+        nickName: this.nickName,
         memberPhone: this.memberPhone,
         memberSex: this.memberSex,
         openId: this.openId,
@@ -455,8 +455,6 @@ export default {
     },
     // 导出的方法
     exportTable() {
-     
-      
       let data = {
         pageNum: this.pageNum,
         pageSize: this.pageSize,
@@ -467,7 +465,6 @@ export default {
         id: this.id,
         isAutonym:this.isAutonym,
         channelId: this.channelId,
-        memberName: this.memberName,
         memberPhone: this.memberPhone,
         memberSex: this.memberSex,
         nickName:this.nickName,
@@ -519,11 +516,11 @@ export default {
     margin: 20px 220px;
   }
 }
-.leftBox {
-  min-height: 900px;
-  float: left;
-  margin-right: 20px;
-}
+// .leftBox {
+//   min-height: 900px;
+//   float: left;
+//   margin-right: 20px;
+// }
 .lookDetails {
   text-decoration: underline;
 }

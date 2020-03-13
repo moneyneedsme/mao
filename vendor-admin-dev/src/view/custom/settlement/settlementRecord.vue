@@ -806,12 +806,12 @@ export default {
     text-align: center;
     margin-top: 10px;
   }
-  .leftBox {
-    // min-width: 250px;
-    min-height: 900px;
-    float: left;
-    margin-right: 20px;
-  }
+  // .leftBox {
+  //   // min-width: 250px;
+  //   min-height: 900px;
+  //   float: left;
+  //   margin-right: 20px;
+  // }
   .lookDetails {
     text-decoration: underline;
   }

@@ -4,8 +4,8 @@
       <channel-tree @clickTreeRow="clickTreeRow" ref="channelTree"></channel-tree>
     </div>
     <div class="rightDiv">
-      <Input v-model="orderNo" style="margin-right:10px" placeholder="订单编号" clearable />
-      <Input v-model="machineCode" style="margin-right:10px" placeholder="设备编码" clearable />
+      <Input v-model="orderNo" style="margin-right:5px" placeholder="订单编号" clearable />
+      <Input v-model="machineCode" style="margin-right:5px;width:100px" placeholder="设备编码" clearable />
       <Poptip
         trigger="click"
         placement="bottom"
@@ -28,7 +28,7 @@
         v-model="orderStatus"
         clearable
         placeholder="交易状态"
-        style="width:100px;margin-right:10px"
+        style="width:100px;margin-right:5px"
       >
         <Option v-for="(item,i) in statusList" :value="item.value" :key="item+i">{{ item.label }}</Option>
       </Select>
@@ -37,7 +37,7 @@
         clearable
         placeholder="退款状态"
         @on-change="refundStatusChange"
-        style="width:100px;margin-right:10px"
+        style="width:100px;margin-right:5px"
       >
         <Option v-for="(item,i) in refundList" :value="item.value" :key="item+i">{{ item.label }}</Option>
       </Select>
@@ -49,7 +49,7 @@
         @on-change="handleChangeStart"
         style="width: 160px"
       ></DatePicker>
-      <span>&nbsp至&nbsp&nbsp</span>
+      <span>至&nbsp&nbsp</span>
       <DatePicker
         v-model="endDate"
         type="datetime"
@@ -1435,7 +1435,7 @@ export default {
     margin-right: 5px;
   }
   .ivu-btn {
-    margin-left: 10px;
+    margin-left: 5px;
   }
   .ivu-table-wrapper {
     margin-top: 20px;
@@ -1448,10 +1448,10 @@ export default {
     text-align: center;
     margin-top: 10px;
   }
-  .leftBox {
-    float: left;
-    margin-right: 20px;
-  }
+  // .leftBox {
+  //   float: left;
+  //   margin-right: 20px;
+  // }
   .lookDetails {
     text-decoration: underline;
     text-align: center;
